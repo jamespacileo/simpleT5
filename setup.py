@@ -41,8 +41,8 @@ setuptools.setup(
     install_requires=[
         "sentencepiece",
         "torch>=1.7.0,!=1.8.0",  # excludes torch v1.8.0
-        "transformers==4.10.0",
-        "pytorch-lightning==1.4.5",
+        "transformers>=4.10.0",
+        "pytorch-lightning>=1.4.5",
         "tqdm"
         # "fastt5==0.0.7",
     ],

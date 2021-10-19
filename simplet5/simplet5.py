@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
+import os
 from tqdm.auto import tqdm
 from transformers import (
     AdamW,
@@ -24,6 +25,7 @@ from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 torch.cuda.empty_cache()
 pl.seed_everything(42)
 
+CPU_WORKERS = int(os.environ.get('SIMPLET5_CPU_WORKERS', "5"))
 
 class PyTorchDataModule(Dataset):
     """  PyTorch Dataset class  """
@@ -143,19 +145,19 @@ class LightningDataModule(pl.LightningDataModule):
     def train_dataloader(self):
         """ training dataloader """
         return DataLoader(
-            self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=2
+            self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=CPU_WORKERS
         )
 
     def test_dataloader(self):
         """ test dataloader """
         return DataLoader(
-            self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=2
+            self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=CPU_WORKERS
         )
 
     def val_dataloader(self):
         """ validation dataloader """
         return DataLoader(
-            self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=2
+            self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=CPU_WORKERS
         )
 
 

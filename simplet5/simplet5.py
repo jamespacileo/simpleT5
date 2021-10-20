@@ -13,7 +13,7 @@ from transformers import (
     MT5TokenizerFast as MT5Tokenizer,
 )
 from transformers import AutoTokenizer
-
+from pytorch_lightning.plugins import DeepSpeedPlugin
 # from fastT5 import export_and_get_onnx_model
 from torch.utils.data import Dataset, DataLoader
 from transformers import AutoModelWithLMHead, AutoTokenizer
@@ -26,6 +26,7 @@ torch.cuda.empty_cache()
 pl.seed_everything(42)
 
 CPU_WORKERS = int(os.environ.get('SIMPLET5_CPU_WORKERS', "5"))
+
 
 class PyTorchDataModule(Dataset):
     """  PyTorch Dataset class  """
@@ -90,9 +91,11 @@ class PyTorchDataModule(Dataset):
             source_text=source_text,
             target_text=data_row["target_text"],
             source_text_input_ids=source_text_encoding["input_ids"].flatten(),
-            source_text_attention_mask=source_text_encoding["attention_mask"].flatten(),
+            source_text_attention_mask=source_text_encoding["attention_mask"].flatten(
+            ),
             labels=labels.flatten(),
-            labels_attention_mask=target_text_encoding["attention_mask"].flatten(),
+            labels_attention_mask=target_text_encoding["attention_mask"].flatten(
+            ),
         )
 
 
@@ -247,7 +250,8 @@ class LightningModel(pl.LightningModule):
     def training_epoch_end(self, training_step_outputs):
         """ save tokenizer and model on epoch end """
         avg_traning_loss = np.round(
-            torch.mean(torch.stack([x["loss"] for x in training_step_outputs])).item(),
+            torch.mean(torch.stack([x["loss"]
+                       for x in training_step_outputs])).item(),
             4,
         )
         path = f"{self.outputdir}/simplet5-epoch-{self.current_epoch}-train-loss-{str(avg_traning_loss)}"
@@ -368,6 +372,13 @@ class SimpleT5:
             gpus=gpus,
             progress_bar_refresh_rate=5,
             precision=precision,
+            plugins=DeepSpeedPlugin(zero_optimization=True,
+                                    cpu_offload=True,
+                                    cpu_checkpointing=True,
+                                    offload_optimizer=True,
+                                    offload_parameters=True,
+                                    params_buffer_size=4,
+                                    cpu_offload_use_pin_memory=False,)
         )
 
         trainer.fit(self.T5Model, self.data_module)
@@ -384,13 +395,16 @@ class SimpleT5:
             use_gpu (bool, optional): if True, model uses gpu for inferencing/prediction. Defaults to True.
         """
         if model_type == "t5":
-            self.model = T5ForConditionalGeneration.from_pretrained(f"{model_dir}")
+            self.model = T5ForConditionalGeneration.from_pretrained(
+                f"{model_dir}")
             self.tokenizer = T5Tokenizer.from_pretrained(f"{model_dir}")
         elif model_type == "mt5":
-            self.model = MT5ForConditionalGeneration.from_pretrained(f"{model_dir}")
+            self.model = MT5ForConditionalGeneration.from_pretrained(
+                f"{model_dir}")
             self.tokenizer = MT5Tokenizer.from_pretrained(f"{model_dir}")
         elif model_type == "byt5":
-            self.model = T5ForConditionalGeneration.from_pretrained(f"{model_dir}")
+            self.model = T5ForConditionalGeneration.from_pretrained(
+                f"{model_dir}")
             self.tokenizer = ByT5Tokenizer.from_pretrained(f"{model_dir}")
 
         if use_gpu:

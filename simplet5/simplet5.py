@@ -308,6 +308,7 @@ class SimpleT5:
         outputdir: str = "outputs",
         early_stopping_patience_epochs: int = 0,  # 0 to disable early stopping feature
         precision=32,
+        tune=False
     ):
         """
         trains T5/MT5 model on custom dataset
@@ -385,9 +386,10 @@ class SimpleT5:
             )
         )
 
-        # trainer.tune()
-
-        trainer.fit(self.T5Model, self.data_module)
+        if tune:
+            trainer.tune(self.T5Model, self.data_module)
+        else:
+            trainer.fit(self.T5Model, self.data_module)
 
     def load_model(
         self, model_type: str = "t5", model_dir: str = "outputs", use_gpu: bool = False

@@ -368,17 +368,20 @@ class SimpleT5:
         trainer = pl.Trainer(
             # logger=logger,
             callbacks=early_stop_callback,
+            auto_scale_batch_size=True,
             max_epochs=max_epochs,
             gpus=gpus,
             progress_bar_refresh_rate=5,
             precision=precision,
-            plugins=DeepSpeedPlugin(zero_optimization=True,
-                                    cpu_offload=True,
-                                    cpu_checkpointing=True,
-                                    offload_optimizer=True,
-                                    offload_parameters=True,
-                                    params_buffer_size=4,
-                                    cpu_offload_use_pin_memory=False,)
+            plugins=DeepSpeedPlugin(
+                zero_optimization=True,
+                cpu_offload=True,
+                cpu_checkpointing=True,
+                offload_optimizer=True,
+                offload_parameters=True,
+                params_buffer_size=4,
+                cpu_offload_use_pin_memory=False
+            )
         )
 
         trainer.fit(self.T5Model, self.data_module)

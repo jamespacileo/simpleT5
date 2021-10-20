@@ -334,6 +334,7 @@ class SimpleT5:
             source_max_token_len=source_max_token_len,
             target_max_token_len=target_max_token_len,
         )
+        self.data_module.setup()
 
         self.T5Model = LightningModel(
             tokenizer=self.tokenizer, model=self.model, outputdir=outputdir

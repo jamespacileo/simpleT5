@@ -308,6 +308,7 @@ class SimpleT5:
         outputdir: str = "outputs",
         early_stopping_patience_epochs: int = 0,  # 0 to disable early stopping feature
         precision=32,
+        plugins=None,
         tune=False
     ):
         """
@@ -376,15 +377,7 @@ class SimpleT5:
             progress_bar_refresh_rate=5,
             precision=precision,
             # profiler="simple",
-            plugins=DeepSpeedPlugin(
-                zero_optimization=True,
-                cpu_offload=True,
-                cpu_checkpointing=True,
-                offload_optimizer=True,
-                offload_parameters=True,
-                params_buffer_size=4,
-                cpu_offload_use_pin_memory=False
-            )
+            plugins=plugins
         )
 
         if tune:

@@ -387,9 +387,9 @@ class SimpleT5:
         )
 
         if tune:
-            trainer.tune(self.T5Model, self.data_module)
+            trainer.tune(self.T5Model, datamodule=self.data_module)
         else:
-            trainer.fit(self.T5Model, self.data_module)
+            trainer.fit(self.T5Model, datamodule=self.data_module)
 
     def load_model(
         self, model_type: str = "t5", model_dir: str = "outputs", use_gpu: bool = False

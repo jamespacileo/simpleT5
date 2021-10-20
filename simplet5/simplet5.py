@@ -232,7 +232,7 @@ class LightningModel(pl.LightningModule):
         attention_mask = batch["source_text_attention_mask"]
         labels = batch["labels"]
         labels_attention_mask = batch["labels_attention_mask"]
-
+        
         loss, outputs = self(
             input_ids=input_ids,
             attention_mask=attention_mask,
@@ -373,6 +373,7 @@ class SimpleT5:
             gpus=gpus,
             progress_bar_refresh_rate=5,
             precision=precision,
+            profiler=True,
             plugins=DeepSpeedPlugin(
                 zero_optimization=True,
                 cpu_offload=True,
@@ -383,6 +384,8 @@ class SimpleT5:
                 cpu_offload_use_pin_memory=False
             )
         )
+
+        # trainer.tune()
 
         trainer.fit(self.T5Model, self.data_module)
 

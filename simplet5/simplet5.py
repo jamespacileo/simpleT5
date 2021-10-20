@@ -375,7 +375,7 @@ class SimpleT5:
             gpus=gpus,
             progress_bar_refresh_rate=5,
             precision=precision,
-            profiler="simple",
+            # profiler="simple",
             plugins=DeepSpeedPlugin(
                 zero_optimization=True,
                 cpu_offload=True,

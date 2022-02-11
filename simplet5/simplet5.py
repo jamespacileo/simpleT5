@@ -469,7 +469,7 @@ class SimpleT5:
             top_k=top_k,
             num_return_sequences=num_return_sequences,
         )
-        preds = [
+        return [
             self.tokenizer.decode(
                 g,
                 skip_special_tokens=skip_special_tokens,
@@ -477,7 +477,6 @@ class SimpleT5:
             )
             for g in generated_ids
         ]
-        return preds
 
     # def convert_and_load_onnx_model(self, model_dir: str):
     #     """ returns ONNX model """
